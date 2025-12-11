@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:just_code/login_page.dart';
 
@@ -16,27 +17,33 @@ class _SingupScreenState extends State<SingupScreen> {
   String emailAddress = '';
   String password = '';
 
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
   /////////////////////FUNCTIONS////////////////////
-  
-  trySubmit(){
+
+  trySubmit() {
     final isValid = _formKey.currentState!.validate();
-    if(isValid){
+    if (isValid) {
       _formKey.currentState!.save();
-      submitData();
+      _auth.createUserWithEmailAndPassword(
+        email: emailAddressController.text.toString().trim(),
+        password: passwordController.text.toString().trim(),
+      );
     }
   }
 
-  submitData(){
+  submitData() {}
 
+  @override
+  void dispose() {
+    super.dispose();
+    emailAddressController.dispose();
+    passwordController.dispose();
   }
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
-       return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[200],
         title: Text('SING UP'),
@@ -58,8 +65,6 @@ class _SingupScreenState extends State<SingupScreen> {
                   validator: (value) {
                     if (value.toString().trim().isEmpty) {
                       return 'Please enter your Password';
-                    } else if (value.toString().trim().contains('@')) {
-                      return 'Email is not Formatted properly';
                     } else {
                       return null;
                     }
@@ -83,7 +88,7 @@ class _SingupScreenState extends State<SingupScreen> {
                       return null;
                     }
                   },
-                  controller: passwordController ,
+                  controller: passwordController,
                   keyboardType: TextInputType.visiblePassword,
                   obscureText: !isPasswordVisible,
                   decoration: InputDecoration(
@@ -112,7 +117,7 @@ class _SingupScreenState extends State<SingupScreen> {
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
-                    
+                    trySubmit();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.yellow[50],
@@ -125,17 +130,20 @@ class _SingupScreenState extends State<SingupScreen> {
                   ),
                 ),
                 SizedBox(height: 8),
-                TextButton(onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
-                }, child: Text('New Registraion!!'))
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  },
+                  child: Text('New Registraion!!'),
+                ),
               ],
             ),
-         
-         
           ),
         ),
       ),
     );
-  
   }
 }

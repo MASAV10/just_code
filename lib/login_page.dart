@@ -47,6 +47,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    emailAddressController.dispose();
+    passwordController.dispose();
+    phoneNumberController.dispose();
+    userNameController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
