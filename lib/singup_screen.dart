@@ -1,57 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:just_code/singup_screen.dart';
+import 'package:just_code/login_page.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SingupScreen extends StatefulWidget {
+  const SingupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SingupScreen> createState() => _SingupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  CollectionReference collectionReferenceUserMaster = FirebaseFirestore.instance
-      .collection('titoUserMaster');
-
+class _SingupScreenState extends State<SingupScreen> {
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool isPasswordVisible = false;
   String emailAddress = '';
   String password = '';
-  String userName = '';
-  String phoneNumber = '';
-  bool isPasswordVisible = false;
 
-  ///////////////////////////////////////FUNCTIIONS///////////////////////////////////////////////
-  trySubmit() {
+  /////////////////////FUNCTIONS////////////////////
+  
+  trySubmit(){
     final isValid = _formKey.currentState!.validate();
-    if (isValid) {
+    if(isValid){
       _formKey.currentState!.save();
-      submitForm();
+      submitData();
     }
   }
 
-  submitForm() {
-    addDataToUserMaster();
+  submitData(){
+
   }
 
-  Future<void> addDataToUserMaster() async {
-    await collectionReferenceUserMaster.add({
-      'email_address': emailAddressController.text.trim(),
-      'username': userNameController.text.trim(),
-      'mobile_number': '+91' + phoneNumberController.text.trim(),
-      'uuid': '91' + phoneNumberController.text.trim(),
-    });
-  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+       return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[200],
-        title: Text('LOGIN'),
+        title: Text('SING UP'),
         centerTitle: true,
       ),
       backgroundColor: Colors.blue[50],
@@ -65,43 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextFormField(
-                  key: ValueKey('userName'),
-                  validator: (value) {
-                    if (value.toString().trim().isEmpty) {
-                      return 'Please enter your name';
-                    } else {
-                      return null;
-                    }
-                  },
-                  controller: userNameController,
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your Name',
-                    icon: Icon(Icons.person_4_outlined),
-                  ),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  controller: phoneNumberController,
-                  key: ValueKey('phoneNumber'),
-                  validator: (value) {
-                    if (value.toString().trim().isEmpty) {
-                      return 'Please enter mobile number';
-                    } else if (value.toString().trim().length == 10) {
-                      return 'Please enter 10 digit mobile number';
-                    } else {
-                      return null;
-                    }
-                  },
-                  maxLength: 10,
-                  keyboardType: TextInputType.numberWithOptions(),
-                  decoration: InputDecoration(
-                    hintText: 'Enter your Mobile Number',
-                    icon: Icon(Icons.phone),
-                  ),
-                ),
-                SizedBox(height: 8),
                 TextFormField(
                   key: ValueKey('emailAddress'),
                   validator: (value) {
@@ -132,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     }
                   },
-                  controller: passwordController,
+                  controller: passwordController ,
                   keyboardType: TextInputType.visiblePassword,
                   obscureText: !isPasswordVisible,
                   decoration: InputDecoration(
@@ -161,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
-                    trySubmit();
+                    
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.yellow[50],
@@ -169,25 +120,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     shadowColor: Colors.black12,
                   ),
                   child: Text(
-                    'SUBMIT',
+                    'Sing Up',
                     style: TextStyle(color: Colors.black87),
                   ),
                 ),
                 SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SingupScreen()),
-                    );
-                  },
-                  child: Text('Already Have a Account Sing Up!!'),
-                ),
+                TextButton(onPressed: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
+                }, child: Text('New Registraion!!'))
               ],
             ),
+         
+         
           ),
         ),
       ),
     );
+  
   }
 }
