@@ -16,6 +16,7 @@ class _SingupScreenState extends State<SingupScreen> {
   bool isPasswordVisible = false;
   String emailAddress = '';
   String password = '';
+  bool isLoading = false;
 
   FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -29,6 +30,9 @@ class _SingupScreenState extends State<SingupScreen> {
         email: emailAddressController.text.toString().trim(),
         password: passwordController.text.toString().trim(),
       );
+      setState(() {
+        isLoading != isLoading;
+      });
     }
   }
 
@@ -82,7 +86,7 @@ class _SingupScreenState extends State<SingupScreen> {
                   validator: (value) {
                     if (value.toString().trim().isEmpty) {
                       return 'Please enter Paswword';
-                    } else if (value.toString().trim().length <= 6) {
+                    } else if (value.toString().trim().length <= 5) {
                       return 'Min 6 characters needed';
                     } else {
                       return null;
@@ -124,10 +128,16 @@ class _SingupScreenState extends State<SingupScreen> {
                     elevation: 5,
                     shadowColor: Colors.black12,
                   ),
-                  child: Text(
-                    'Sing Up',
-                    style: TextStyle(color: Colors.black87),
-                  ),
+                  child:
+                      isLoading
+                          ? CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          )
+                          : Text(
+                            'Sing Up',
+                            style: TextStyle(color: Colors.black87),
+                          ),
                 ),
                 SizedBox(height: 8),
                 TextButton(

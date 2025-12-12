@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String userName = '';
   String phoneNumber = '';
   bool isPasswordVisible = false;
+  bool isLoading = false;
 
   ///////////////////////////////////////FUNCTIIONS///////////////////////////////////////////////
   trySubmit() {
@@ -30,6 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (isValid) {
       _formKey.currentState!.save();
       submitForm();
+      setState(() {
+        isLoading != isLoading;
+      });
     }
   }
 
@@ -135,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   validator: (value) {
                     if (value.toString().trim().isEmpty) {
                       return 'Please enter Paswword';
-                    } else if (value.toString().trim().length <= 6) {
+                    } else if (value.toString().trim().length <= 5) {
                       return 'Min 6 characters needed';
                     } else {
                       return null;
@@ -177,10 +181,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     elevation: 5,
                     shadowColor: Colors.black12,
                   ),
-                  child: Text(
-                    'SUBMIT',
-                    style: TextStyle(color: Colors.black87),
-                  ),
+                  child:
+                      isLoading
+                          ? CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          )
+                          : Text(
+                            'SUBMIT',
+                            style: TextStyle(color: Colors.black87),
+                          ),
                 ),
                 SizedBox(height: 8),
                 TextButton(
