@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+import 'package:just_code/home_screen.dart';
 import 'package:just_code/login_screen.dart';
-
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -35,35 +36,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       _formKey.currentState!.save();
+
       submitForm();
-      setState(() {
-        isLoading != isLoading;
-      });
     }
   }
 
   submitForm() {
-          try {
-        _auth.createUserWithEmailAndPassword(
-          email: emailAddressController.text.toString().trim(),
-          password: passwordController.text.toString().trim(),
-        );
-      } on FirebaseAuthException catch (e) {
-        if (e.message!.contains('email')) {
-          setState(() {
-            errorFromFirebaseExceptionsForEmail = e.message.toString();
-            emailAddressController.clear();
-          
-          });
-        } else if (e.message!.contains('password')) {
-          setState(() {
-            errorFromFirebaseExceptionsForPassword = e.message.toString();
-            passwordController.clear();
-            emailAddressController.clear();
-          });
-        }
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      _auth.createUserWithEmailAndPassword(
+        email: emailAddressController.text.toString().trim(),
+        password: passwordController.text.toString().trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.message!.contains('email')) {
+        setState(() {
+          errorFromFirebaseExceptionsForEmail = e.message.toString();
+          emailAddressController.clear();
+          isLoading = false;
+        });
+      } else if (e.message!.contains('password')) {
+        setState(() {
+          errorFromFirebaseExceptionsForPassword = e.message.toString();
+          passwordController.clear();
+          emailAddressController.clear();
+          isLoading = false;
+        });
       }
+    }
+
     addDataToUserMaster();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
+    );
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> addDataToUserMaster() async {
@@ -73,18 +85,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       'mobile_number': '+91${phoneNumberController.text.trim()}',
       'uuid': '91${phoneNumberController.text.trim()}',
     });
-  }
-
-  void loginToApp() {
-    _auth
-        .signInWithEmailAndPassword(
-          email: emailAddressController.text.trim(),
-          password: passwordController.text.trim(),
-        )
-        .then((value) {})
-        .onError((error, stackTrace) {
-          debugPrint(error.toString());
-        });
   }
 
   @override
@@ -138,7 +138,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   validator: (value) {
                     if (value.toString().trim().isEmpty) {
                       return 'Please enter mobile number';
-                    } else if (value.toString().trim().length == 10) {
+                    } else if (value.toString().trim().length < 10) {
                       return 'Please enter 10 digit mobile number';
                     } else {
                       return null;
@@ -146,6 +146,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                   maxLength: 10,
                   keyboardType: TextInputType.numberWithOptions(),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     hintText: 'Enter your Mobile Number',
                     icon: Icon(Icons.phone),
@@ -157,8 +158,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   validator: (value) {
                     if (value.toString().trim().isEmpty) {
                       return 'Please enter your Password';
-                    } else if (value.toString().trim().contains('@')) {
-                      return 'Email is not Formatted properly';
                     } else {
                       return null;
                     }
@@ -221,7 +220,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child:
                       isLoading
                           ? CircularProgressIndicator(
-                            color: Colors.white,
+                            color: Colors.black,
                             strokeWidth: 3,
                           )
                           : Text(

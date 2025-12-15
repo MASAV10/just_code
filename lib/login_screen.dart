@@ -1,8 +1,7 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:just_code/home_screen.dart';
 import 'package:just_code/sign_up_screen.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool isPasswordVisible = false;
+  bool isLoading = false;
   String emailAddress = '';
   String password = '';
   String errorFromFirebaseExceptionsForEmail = '';
@@ -28,12 +28,35 @@ class _LoginScreenState extends State<LoginScreen> {
   trySubmit() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      _formKey.currentState!.save();
-
+      login();
     }
   }
 
-  submitData() {}
+  void login() {
+    setState(() {
+      isLoading = true;
+    });
+    _auth
+        .signInWithEmailAndPassword(
+          email: emailAddressController.text.toString(),
+          password: passwordController.text.toString(),
+        )
+        .then((value) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+          setState(() {
+            isLoading = false;
+          });
+        })
+        .onError((error, stackTrace) {
+          debugPrint(error.toString());
+          setState(() {
+            isLoading = false;
+          });
+        });
+  }
 
   @override
   void dispose() {
@@ -118,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
+                   
                     trySubmit();
                   },
                   style: ElevatedButton.styleFrom(
@@ -125,10 +149,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     elevation: 5,
                     shadowColor: Colors.black12,
                   ),
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(color: Colors.black87),
-                  ),
+                  child:
+                      isLoading
+                          ? CircularProgressIndicator(
+                            color: Colors.black,
+                            strokeWidth: 2,
+                          )
+                          : Text(
+                            'Sign Up',
+                            style: TextStyle(color: Colors.black87),
+                          ),
                 ),
                 SizedBox(height: 8),
                 TextButton(
