@@ -1,6 +1,8 @@
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:just_code/singup_screen.dart';
+import 'package:just_code/sign_up_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,53 +12,34 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  CollectionReference collectionReferenceUserMaster = FirebaseFirestore.instance
-      .collection('titoUserMaster');
-
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool isPasswordVisible = false;
   String emailAddress = '';
   String password = '';
-  String userName = '';
-  String phoneNumber = '';
-  bool isPasswordVisible = false;
-  bool isLoading = false;
+  String errorFromFirebaseExceptionsForEmail = '';
+  String errorFromFirebaseExceptionsForPassword = '';
 
-  ///////////////////////////////////////FUNCTIIONS///////////////////////////////////////////////
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /////////////////////FUNCTIONS////////////////////
+
   trySubmit() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       _formKey.currentState!.save();
-      submitForm();
-      setState(() {
-        isLoading != isLoading;
-      });
+
     }
   }
 
-  submitForm() {
-    addDataToUserMaster();
-  }
-
-  Future<void> addDataToUserMaster() async {
-    await collectionReferenceUserMaster.add({
-      'email_address': emailAddressController.text.trim(),
-      'username': userNameController.text.trim(),
-      'mobile_number': '+91' + phoneNumberController.text.trim(),
-      'uuid': '91' + phoneNumberController.text.trim(),
-    });
-  }
+  submitData() {}
 
   @override
   void dispose() {
     super.dispose();
     emailAddressController.dispose();
     passwordController.dispose();
-    phoneNumberController.dispose();
-    userNameController.dispose();
   }
 
   @override
@@ -79,49 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextFormField(
-                  key: ValueKey('userName'),
-                  validator: (value) {
-                    if (value.toString().trim().isEmpty) {
-                      return 'Please enter your name';
-                    } else {
-                      return null;
-                    }
-                  },
-                  controller: userNameController,
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your Name',
-                    icon: Icon(Icons.person_4_outlined),
-                  ),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  controller: phoneNumberController,
-                  key: ValueKey('phoneNumber'),
-                  validator: (value) {
-                    if (value.toString().trim().isEmpty) {
-                      return 'Please enter mobile number';
-                    } else if (value.toString().trim().length == 10) {
-                      return 'Please enter 10 digit mobile number';
-                    } else {
-                      return null;
-                    }
-                  },
-                  maxLength: 10,
-                  keyboardType: TextInputType.numberWithOptions(),
-                  decoration: InputDecoration(
-                    hintText: 'Enter your Mobile Number',
-                    icon: Icon(Icons.phone),
-                  ),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
                   key: ValueKey('emailAddress'),
                   validator: (value) {
                     if (value.toString().trim().isEmpty) {
                       return 'Please enter your Password';
-                    } else if (value.toString().trim().contains('@')) {
-                      return 'Email is not Formatted properly';
                     } else {
                       return null;
                     }
@@ -181,26 +125,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     elevation: 5,
                     shadowColor: Colors.black12,
                   ),
-                  child:
-                      isLoading
-                          ? CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 3,
-                          )
-                          : Text(
-                            'SUBMIT',
-                            style: TextStyle(color: Colors.black87),
-                          ),
+                  child: Text(
+                    'Sign Up',
+                    style: TextStyle(color: Colors.black87),
+                  ),
                 ),
                 SizedBox(height: 8),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SingupScreen()),
+                      MaterialPageRoute(builder: (context) => SignUpScreen()),
                     );
                   },
-                  child: Text('Already Have a Account Sing Up!!'),
+                  child: Text('NEW REGISTRATION!!'),
                 ),
               ],
             ),

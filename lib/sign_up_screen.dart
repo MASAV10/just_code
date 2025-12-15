@@ -1,48 +1,99 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:just_code/login_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:just_code/login_screen.dart';
 
-class SingupScreen extends StatefulWidget {
-  const SingupScreen({super.key});
+
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<SingupScreen> createState() => _SingupScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SingupScreenState extends State<SingupScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
+  CollectionReference collectionReferenceUserMaster = FirebaseFirestore.instance
+      .collection('titoUserMaster');
+
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool isPasswordVisible = false;
   String emailAddress = '';
   String password = '';
+  String userName = '';
+  String phoneNumber = '';
+  bool isPasswordVisible = false;
   bool isLoading = false;
+  final _auth = FirebaseAuth.instance;
+  String errorFromFirebaseExceptionsForEmail = '';
+  String errorFromFirebaseExceptionsForPassword = '';
 
-  FirebaseAuth _auth = FirebaseAuth.instance;
-
-  /////////////////////FUNCTIONS////////////////////
-
+  ///////////////////////////////////////FUNCTIIONS///////////////////////////////////////////////
   trySubmit() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       _formKey.currentState!.save();
-      _auth.createUserWithEmailAndPassword(
-        email: emailAddressController.text.toString().trim(),
-        password: passwordController.text.toString().trim(),
-      );
+      submitForm();
       setState(() {
         isLoading != isLoading;
       });
     }
   }
 
-  submitData() {}
+  submitForm() {
+          try {
+        _auth.createUserWithEmailAndPassword(
+          email: emailAddressController.text.toString().trim(),
+          password: passwordController.text.toString().trim(),
+        );
+      } on FirebaseAuthException catch (e) {
+        if (e.message!.contains('email')) {
+          setState(() {
+            errorFromFirebaseExceptionsForEmail = e.message.toString();
+            emailAddressController.clear();
+          
+          });
+        } else if (e.message!.contains('password')) {
+          setState(() {
+            errorFromFirebaseExceptionsForPassword = e.message.toString();
+            passwordController.clear();
+            emailAddressController.clear();
+          });
+        }
+      }
+    addDataToUserMaster();
+  }
+
+  Future<void> addDataToUserMaster() async {
+    await collectionReferenceUserMaster.add({
+      'email_address': emailAddressController.text.trim(),
+      'username': userNameController.text.trim(),
+      'mobile_number': '+91${phoneNumberController.text.trim()}',
+      'uuid': '91${phoneNumberController.text.trim()}',
+    });
+  }
+
+  void loginToApp() {
+    _auth
+        .signInWithEmailAndPassword(
+          email: emailAddressController.text.trim(),
+          password: passwordController.text.trim(),
+        )
+        .then((value) {})
+        .onError((error, stackTrace) {
+          debugPrint(error.toString());
+        });
+  }
 
   @override
   void dispose() {
     super.dispose();
     emailAddressController.dispose();
     passwordController.dispose();
+    phoneNumberController.dispose();
+    userNameController.dispose();
   }
 
   @override
@@ -50,7 +101,7 @@ class _SingupScreenState extends State<SingupScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[200],
-        title: Text('SING UP'),
+        title: Text('SIGN UP'),
         centerTitle: true,
       ),
       backgroundColor: Colors.blue[50],
@@ -65,10 +116,49 @@ class _SingupScreenState extends State<SingupScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextFormField(
+                  key: ValueKey('userName'),
+                  validator: (value) {
+                    if (value.toString().trim().isEmpty) {
+                      return 'Please enter your name';
+                    } else {
+                      return null;
+                    }
+                  },
+                  controller: userNameController,
+                  keyboardType: TextInputType.name,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your Name',
+                    icon: Icon(Icons.person_4_outlined),
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextFormField(
+                  controller: phoneNumberController,
+                  key: ValueKey('phoneNumber'),
+                  validator: (value) {
+                    if (value.toString().trim().isEmpty) {
+                      return 'Please enter mobile number';
+                    } else if (value.toString().trim().length == 10) {
+                      return 'Please enter 10 digit mobile number';
+                    } else {
+                      return null;
+                    }
+                  },
+                  maxLength: 10,
+                  keyboardType: TextInputType.numberWithOptions(),
+                  decoration: InputDecoration(
+                    hintText: 'Enter your Mobile Number',
+                    icon: Icon(Icons.phone),
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextFormField(
                   key: ValueKey('emailAddress'),
                   validator: (value) {
                     if (value.toString().trim().isEmpty) {
                       return 'Please enter your Password';
+                    } else if (value.toString().trim().contains('@')) {
+                      return 'Email is not Formatted properly';
                     } else {
                       return null;
                     }
@@ -135,7 +225,7 @@ class _SingupScreenState extends State<SingupScreen> {
                             strokeWidth: 3,
                           )
                           : Text(
-                            'Sing Up',
+                            'SUBMIT',
                             style: TextStyle(color: Colors.black87),
                           ),
                 ),
@@ -147,7 +237,7 @@ class _SingupScreenState extends State<SingupScreen> {
                       MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   },
-                  child: Text('New Registraion!!'),
+                  child: Text("Already Have Account LOGIN!!"),
                 ),
               ],
             ),
