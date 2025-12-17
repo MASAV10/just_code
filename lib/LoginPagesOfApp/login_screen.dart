@@ -1,90 +1,61 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
-import 'package:just_code/home_screen.dart';
-import 'package:just_code/login_screen.dart';
+import 'package:just_code/MainApp/home_screen.dart';
+import 'package:just_code/LoginPagesOfApp/sign_up_screen.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  CollectionReference collectionReferenceUserMaster = FirebaseFirestore.instance
-      .collection('titoUserMaster');
-
+class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  String emailAddress = '';
-  String password = '';
-  String userName = '';
-  String phoneNumber = '';
   bool isPasswordVisible = false;
   bool isLoading = false;
-  final _auth = FirebaseAuth.instance;
+  String emailAddress = '';
+  String password = '';
   String errorFromFirebaseExceptionsForEmail = '';
   String errorFromFirebaseExceptionsForPassword = '';
 
-  ///////////////////////////////////////FUNCTIIONS///////////////////////////////////////////////
+  FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /////////////////////FUNCTIONS////////////////////
+
   trySubmit() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      _formKey.currentState!.save();
-
-      submitForm();
+      login();
     }
   }
 
-  submitForm() {
+  void login() {
     setState(() {
       isLoading = true;
     });
-
-    try {
-      _auth.createUserWithEmailAndPassword(
-        email: emailAddressController.text.toString().trim(),
-        password: passwordController.text.toString().trim(),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.message!.contains('email')) {
-        setState(() {
-          errorFromFirebaseExceptionsForEmail = e.message.toString();
-          emailAddressController.clear();
-          isLoading = false;
+    _auth
+        .signInWithEmailAndPassword(
+          email: emailAddressController.text.toString(),
+          password: passwordController.text.toString(),
+        )
+        .then((value) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+          setState(() {
+            isLoading = false;
+          });
+        })
+        .onError((error, stackTrace) {
+          debugPrint(error.toString());
+          setState(() {
+            isLoading = false;
+          });
         });
-      } else if (e.message!.contains('password')) {
-        setState(() {
-          errorFromFirebaseExceptionsForPassword = e.message.toString();
-          passwordController.clear();
-          emailAddressController.clear();
-          isLoading = false;
-        });
-      }
-    }
-
-    addDataToUserMaster();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
-    );
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  Future<void> addDataToUserMaster() async {
-    await collectionReferenceUserMaster.add({
-      'email_address': emailAddressController.text.trim(),
-      'username': userNameController.text.trim(),
-      'mobile_number': '+91${phoneNumberController.text.trim()}',
-      'uuid': '91${phoneNumberController.text.trim()}',
-    });
   }
 
   @override
@@ -92,8 +63,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
     emailAddressController.dispose();
     passwordController.dispose();
-    phoneNumberController.dispose();
-    userNameController.dispose();
   }
 
   @override
@@ -101,7 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue[200],
-        title: Text('SIGN UP'),
+        title: Text('LOGIN'),
         centerTitle: true,
       ),
       backgroundColor: Colors.blue[50],
@@ -115,44 +84,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextFormField(
-                  key: ValueKey('userName'),
-                  validator: (value) {
-                    if (value.toString().trim().isEmpty) {
-                      return 'Please enter your name';
-                    } else {
-                      return null;
-                    }
-                  },
-                  controller: userNameController,
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your Name',
-                    icon: Icon(Icons.person_4_outlined),
-                  ),
-                ),
-                SizedBox(height: 8),
-                TextFormField(
-                  controller: phoneNumberController,
-                  key: ValueKey('phoneNumber'),
-                  validator: (value) {
-                    if (value.toString().trim().isEmpty) {
-                      return 'Please enter mobile number';
-                    } else if (value.toString().trim().length < 10) {
-                      return 'Please enter 10 digit mobile number';
-                    } else {
-                      return null;
-                    }
-                  },
-                  maxLength: 10,
-                  keyboardType: TextInputType.numberWithOptions(),
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    hintText: 'Enter your Mobile Number',
-                    icon: Icon(Icons.phone),
-                  ),
-                ),
-                SizedBox(height: 8),
                 TextFormField(
                   key: ValueKey('emailAddress'),
                   validator: (value) {
@@ -210,6 +141,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
+                   
                     trySubmit();
                   },
                   style: ElevatedButton.styleFrom(
@@ -221,10 +153,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       isLoading
                           ? CircularProgressIndicator(
                             color: Colors.black,
-                            strokeWidth: 3,
+                            strokeWidth: 2,
                           )
                           : Text(
-                            'SUBMIT',
+                            'Sign Up',
                             style: TextStyle(color: Colors.black87),
                           ),
                 ),
@@ -233,10 +165,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                      MaterialPageRoute(builder: (context) => SignUpScreen()),
                     );
                   },
-                  child: Text("Already Have Account LOGIN!!"),
+                  child: Text('NEW REGISTRATION!!'),
                 ),
               ],
             ),

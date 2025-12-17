@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:just_code/login_screen.dart';
+import 'package:just_code/LoginPagesOfApp/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +15,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('My Home'),
+        centerTitle: true,
+        actions: [
+          
+        ],
+      ),
       body: Center(
         child: Column(
           children: [
