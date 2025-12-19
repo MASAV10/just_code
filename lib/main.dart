@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:just_code/LoginPagesOfApp/phone_number_login.dart';
 import 'package:just_code/LoginPagesOfApp/sign_up_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:just_code/HelpingFiles/firebase_options.dart';
 
-import 'home_screen.dart';
+import 'MainApp/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+  
+
+
+
     return  StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
@@ -44,5 +50,6 @@ class MainApp extends StatelessWidget {
         }
       },
     );
+  
   }
 }

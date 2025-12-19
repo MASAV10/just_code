@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:just_code/LoginPagesOfApp/phone_number_login.dart';
 import 'package:just_code/MainApp/home_screen.dart';
 import 'package:just_code/LoginPagesOfApp/sign_up_screen.dart';
 
@@ -141,7 +142,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
-                   
                     trySubmit();
                   },
                   style: ElevatedButton.styleFrom(
@@ -169,6 +169,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                   child: Text('NEW REGISTRATION!!'),
+                ),
+                SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PhoneNumberLogin(),
+                      ),
+                    );
+                  },
+                  child: Text('Login with Mobile Number'),
                 ),
               ],
             ),
