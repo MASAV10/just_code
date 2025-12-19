@@ -29,7 +29,7 @@ class _PhoneNumberLoginState extends State<PhoneNumberLogin> {
   void loginWithPhoneNumber() {
     print('hi there');
     _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumberController.text.trim().toString(),
+      phoneNumber: '+91'+ phoneNumberController.text.trim().toString(),
       verificationCompleted: (_) {
         debugPrint("verification complete ");
         setState(() {
