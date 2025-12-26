@@ -17,6 +17,7 @@ class _PhoneNumberLoginState extends State<PhoneNumberLogin> {
   bool isLoading = false;
   final _auth = FirebaseAuth.instance;
 
+
   ////////////////////////////FUNCTIONS/////////////////////////////
   trySubmit() {
     final isValid = _formKey.currentState!.validate();
@@ -27,11 +28,9 @@ class _PhoneNumberLoginState extends State<PhoneNumberLogin> {
   }
 
   void loginWithPhoneNumber() {
-    print('hi there');
     _auth.verifyPhoneNumber(
-      phoneNumber: '+91'+ phoneNumberController.text.trim().toString(),
+      phoneNumber: '+91${phoneNumberController.text.trim().toString()}',
       verificationCompleted: (_) {
-        debugPrint("verification complete ");
         setState(() {
           isLoading = false;
         });
@@ -40,30 +39,32 @@ class _PhoneNumberLoginState extends State<PhoneNumberLogin> {
         setState(() {
           isLoading = false;
         });
-        debugPrint("failed "+e.toString());
+        debugPrint("failed: ${e.toString()} ");
       },
       codeSent: (String verificationID, int? token) {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder:
-                (context) => VerifyOtpScreen(verificationID: verificationID),
+                (context) => VerifyOtpScreen(verificationID: verificationID,mobileNumber: phoneNumberController.text.toString().trim() ,),
           ),
         ).whenComplete(() {
-          debugPrint(' coming');
           setState(() {
             isLoading = false;
           });
+          
         });
       },
       codeAutoRetrievalTimeout: (e) {
         setState(() {
           isLoading = false;
         });
-        debugPrint("Error from auto retrieval timeout "+e.toString());
+        debugPrint("Error from auto retrieval timeout: ${e.toString()}");
       },
     );
   }
+
+
 
   @override
   Widget build(BuildContext context) {

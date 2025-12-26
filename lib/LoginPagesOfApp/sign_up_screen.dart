@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:just_code/HelpingFiles/cool_alert.dart';
 import 'package:just_code/MainApp/home_screen.dart';
 import 'package:just_code/LoginPagesOfApp/login_screen.dart';
 
@@ -231,10 +232,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 8),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => LoginScreen()),
+                    // );
+
+                    MyCoolAlerts().myError(contentOfAlert: 'fffffffffddddddddddd', context: context);
                   },
                   child: Text("Already Have Account LOGIN!!"),
                 ),

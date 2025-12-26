@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_code/MainApp/home_screen.dart';
-
 
 class ProfileEditPage extends StatefulWidget {
   const ProfileEditPage({super.key});
@@ -14,32 +13,77 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
-
   TextEditingController fullNameController = TextEditingController();
   TextEditingController employeeNumberController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController mobileNUmberController = TextEditingController();
-
   TextEditingController emailController = TextEditingController();
   //image related vaiables
   final ImagePicker picker = ImagePicker();
-  XFile? filePathOfProfilePhoto;
+  XFile? _filePathOfProfilePhoto;
+  CroppedFile? _croppedFileToDisplay;
 
+  ///////////////////////////FUNCTIONS/////////////////////////////
   void chooseProfilePhotoFromGallery() async {
     XFile? photo = await picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
       setState(() {
-        filePathOfProfilePhoto = photo;
+        _filePathOfProfilePhoto = photo;
       });
     } else {
       XFile? photo = await picker.pickImage(source: ImageSource.gallery);
       setState(() {
-        filePathOfProfilePhoto = photo;
+        _filePathOfProfilePhoto = photo;
       });
+    }
+    _cropImage();
+  }
+
+  Future<void> _cropImage() async {
+    if (_filePathOfProfilePhoto == null) {
+      return null;
+    } else {
+      final croppedImage = await ImageCropper().cropImage(
+        sourcePath: _filePathOfProfilePhoto!.path,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 100,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: false,
+            aspectRatioPresets: [
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio4x3,
+            ],
+          ),
+          IOSUiSettings(
+            title: 'cropper',
+            aspectRatioPresets: [
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio4x3,
+            ],
+          ),
+          WebUiSettings(
+            context: context,
+            presentStyle: WebPresentStyle.dialog,
+            size: const CropperSize(width: 520, height: 520),
+          ),
+        ],
+      );
+       if(croppedImage != null){
+          setState(() {
+            _croppedFileToDisplay = croppedImage;
+          });
+        }
     }
   }
 
-   @override
+  @override
   void dispose() {
     dobController.dispose();
     employeeNumberController.dispose();
@@ -55,9 +99,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       appBar: AppBar(
         title: Text('Edit Profile'),
         leading: GestureDetector(
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-          },
+          onTap: () {},
           child: Icon(Icons.arrow_back_ios),
         ),
       ),
@@ -78,9 +120,11 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         width: double.infinity,
                         height: 200,
                         child:
-                            filePathOfProfilePhoto != null
+                            _filePathOfProfilePhoto != null
                                 ? Image.asset(
-                                  File(filePathOfProfilePhoto!.path).toString(),
+                                  File(
+                                    _filePathOfProfilePhoto!.path,
+                                  ).toString(),
                                   fit: BoxFit.cover,
                                 )
                                 : Icon(Icons.person_2, size: 200),
@@ -156,12 +200,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       ),
                       Divider(indent: 16, endIndent: 16),
                       ElevatedButton(
-                        onPressed: () {
-                          Fluttertoast.showToast(
-                            msg: 'Profile Saved Successfully',
-                          );
-                          setState(() {});
-                        },
+                        onPressed: () {},
                         child: Text('Save Profile'),
                       ),
                       SizedBox(height: 10),

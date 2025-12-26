@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,7 +6,12 @@ import 'package:just_code/MainApp/home_screen.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
   final String verificationID;
-  const VerifyOtpScreen({super.key, required this.verificationID});
+  final String mobileNumber;
+  const VerifyOtpScreen({
+    super.key,
+    required this.verificationID,
+    required this.mobileNumber,
+  });
 
   @override
   State<VerifyOtpScreen> createState() => _VerifyOtpScreenState();
@@ -17,6 +23,9 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   bool isLoading = false;
   String otp = '';
   final _auth = FirebaseAuth.instance;
+  final CollectionReference collectionReferenceUserMaster = FirebaseFirestore
+      .instance
+      .collection('titoUserMaster');
 
   //////////////////////////FUNCTIONS///////////////////////
 
@@ -26,10 +35,26 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
       smsCode: otpController.text.toString(),
     );
 
-    await _auth.signInWithCredential(credentials).whenComplete(() {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeScreen()));
-    },);
+    await _auth
+        .signInWithCredential(credentials)
+        .whenComplete(() {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        })
+        .then((value) {
+          addDataToFireBase();
+        }).onError((error, stackTrace) {
+          print(error.toString());
+        });
+  }
 
+  Future<void> addDataToFireBase() async {
+    await collectionReferenceUserMaster.add({
+      'mobile_number': '+91${widget.mobileNumber}',
+      'uuid': '91${widget.mobileNumber}',
+    });
   }
 
   @override
@@ -74,6 +99,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                   setState(() {
                     isLoading = true;
                   });
+                  loginWithOTP();
                 },
                 child:
                     isLoading
