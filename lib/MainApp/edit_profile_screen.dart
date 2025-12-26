@@ -75,11 +75,11 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           ),
         ],
       );
-       if(croppedImage != null){
-          setState(() {
-            _croppedFileToDisplay = croppedImage;
-          });
-        }
+      if (croppedImage != null) {
+        setState(() {
+          _croppedFileToDisplay = croppedImage;
+        });
+      }
     }
   }
 
@@ -120,7 +120,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         width: double.infinity,
                         height: 200,
                         child:
-                            _filePathOfProfilePhoto != null
+                            _croppedFileToDisplay != null
+                                ? Image.asset(
+                                  File(_croppedFileToDisplay!.path).toString(),
+                                  fit: BoxFit.cover,
+                                )
+                                : _filePathOfProfilePhoto != null
                                 ? Image.asset(
                                   File(
                                     _filePathOfProfilePhoto!.path,
